@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aplikasi Kalkulator Pink - Modul 3</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #fce7f3; /* Pink sangat muda/lembut */
+    }
+
+    .calculator {
+      width: 340px;
+      background-color: #831843; /* Deep Dark Pink / Rose */
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(131, 24, 67, 0.25);
+      padding: 20px;
+    }
+
+    .display {
+      background-color: #500724; /* Pink gelap untuk layar */
+      border-radius: 12px;
+      padding: 15px;
+      text-align: right;
+      margin-bottom: 20px;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      word-wrap: break-word;
+      word-break: break-all;
+    }
+
+    .previous-op {
+      color: #fbcfe8; /* Pink pastel terang */
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+
+    .current-op {
+      color: #ffffff;
+      font-size: 2.2rem;
+      font-weight: 600;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .btn {
+      border: none;
+      background-color: #2e0817; /* Pink gelap pekat untuk tombol angka */
+      color: #fbcfe8; /* Teks pink pastel */
+      font-size: 1.25rem;
+      font-weight: 600;
+      padding: 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background-color: #430c22;
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Tombol AC & DEL */
+    .btn-action {
+      background-color: #ec4899; /* Pink Medium Vibrant */
+      color: #ffffff;
+    }
+
+    .btn-action:hover {
+      background-color: #db2777;
+    }
+
+    /* Tombol Operator (+, -, *, /, %) */
+    .btn-operator {
+      background-color: #9d174d; /* Rose Pink */
+      color: #ffffff;
+    }
+
+    .btn-operator:hover {
+      background-color: #be185d;
+    }
+
+    /* Tombol Sama Dengan (=) */
+    .btn-equals {
+      background-color: #f43f5e; /* Coral Pink Vibrant */
+      color: #ffffff;
+    }
+
+    .btn-equals:hover {
+      background-color: #e11d48;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display">
+      <div id="previousOp" class="previous-op"></div>
+      <div id="currentOp" class="current-op">0</div>
+    </div>
+    <div class="buttons">
+      <button class="btn btn-action" onclick="clearDisplay()">AC</button>
+      <button class="btn btn-action" onclick="deleteNumber()">DEL</button>
+      <button class="btn btn-operator" onclick="appendOperator('%')">%</button>
+      <button class="btn btn-operator" onclick="appendOperator('/')">÷</button>
+
+      <button class="btn" onclick="appendNumber('7')">7</button>
+      <button class="btn" onclick="appendNumber('8')">8</button>
+      <button class="btn" onclick="appendNumber('9')">9</button>
+      <button class="btn btn-operator" onclick="appendOperator('*')">×</button>
+
+      <button class="btn" onclick="appendNumber('4')">4</button>
+      <button class="btn" onclick="appendNumber('5')">5</button>
+      <button class="btn" onclick="appendNumber('6')">6</button>
+      <button class="btn btn-operator" onclick="appendOperator('-')">-</button>
+
+      <button class="btn" onclick="appendNumber('1')">1</button>
+      <button class="btn" onclick="appendNumber('2')">2</button>
+      <button class="btn" onclick="appendNumber('3')">3</button>
+      <button class="btn btn-operator" onclick="appendOperator('+')">+</button>
+
+      <button class="btn" onclick="appendNumber('0')">0</button>
+      <button class="btn" onclick="appendNumber('.')">.</button>
+      <button class="btn btn-equals" style="grid-column: span 2;" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+  <script>
+    let currentOperand = '0';
+    let previousOperand = '';
+    let operation = undefined;
+
+    const currentOpText = document.getElementById('currentOp');
+    const previousOpText = document.getElementById('previousOp');
+
+    const updateDisplay = () => {
+      currentOpText.innerText = currentOperand;
+      if (operation != null) {
+        previousOpText.innerText = `${previousOperand} ${operation}`;
+      } else {
+        previousOpText.innerText = '';
+      }
+    };
+
+    const appendNumber = (number) => {
+      if (number === '.' && currentOperand.includes('.')) return;
+      if (currentOperand === '0' && number !== '.') {
+        currentOperand = number.toString();
+      } else {
+        currentOperand = currentOperand.toString() + number.toString();
+      }
+      updateDisplay();
+    };
+
+    const appendOperator = (op) => {
+      if (currentOperand === '' && previousOperand === '') return;
+      if (currentOperand === '' && previousOperand !== '') {
+        operation = op;
+        updateDisplay();
+        return;
+      }
+      if (previousOperand !== '') {
+        calculate();
+      }
+      operation = op;
+      previousOperand = currentOperand;
+      currentOperand = '';
+      updateDisplay();
+    };
+
+    const calculate = () => {
+      let computation;
+      const prev = parseFloat(previousOperand);
+      const current = parseFloat(currentOperand);
+
+      if (isNaN(prev) || isNaN(current)) return;
+
+      switch (operation) {
+        case '+':
+          computation = prev + current;
+          break;
+        case '-':
+          computation = prev - current;
+          break;
+        case '*':
+          computation = prev * current;
+          break;
+        case '/':
+          if (current === 0) {
+            alert("Tidak dapat membagi dengan angka 0!");
+            clearDisplay();
+            return;
+          }
+          computation = prev / current;
+          break;
+        case '%':
+          computation = prev % current;
+          break;
+        default:
+          return;
+      }
+
+      currentOperand = computation.toString();
+      operation = undefined;
+      previousOperand = '';
+      updateDisplay();
+    };
+
+    const clearDisplay = () => {
+      currentOperand = '0';
+      previousOperand = '';
+      operation = undefined;
+      updateDisplay();
+    };
+
+    const deleteNumber = () => {
+      if (currentOperand === '0') return;
+      if (currentOperand.length === 1) {
+        currentOperand = '0';
+      } else {
+        currentOperand = currentOperand.slice(0, -1);
+      }
+      updateDisplay();
+    };
+  </script>
+</body>
+</html>
